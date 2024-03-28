@@ -7,7 +7,7 @@
 
 // Minmax function with alpha beta pruning for time saving
 // Give better score/weight to better moves (corner control), mobility ?
-// Negamax algo ?!
+// Negamax algo ?!, better board store as int 64/8?, bitboards wtf  a
 position* team14Move(const enum piece board[][SIZE], enum piece mine, int secondsleft){
     int numMoves;
     position * allMoves = getPossibleMoves(board, mine, &numMoves);

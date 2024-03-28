@@ -1,0 +1,20 @@
+https://en.wikipedia.org/wiki/Negamax
+https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning
+https://samsoft.org.uk/reversi/strategy.htm
+https://en.wikibooks.org/wiki/Reversi/Strategy
+https://en.wikipedia.org/wiki/Minimax
+https://github.com/arminkz/Reversi/blob/master/src/player/ai/Minimax.java
+https://github.com/phoemur/reversi/blob/master/MainWindow.ui
+https://www.youtube.com/watch?v=rvLfF9hciU8
+https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-1-introduction/
+https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-4-alpha-beta-pruning/?ref=ml_lbp
+https://github.com/martomi/AI-Reversi
+https://www.diva-portal.org/smash/get/diva2:1778372/FULLTEXT01.pdf
+https://www.chessprogramming.org/Transposition_Table
+
+Heuristics:
+
+    Chips
+    Mobility
+    Position
+    Stability
