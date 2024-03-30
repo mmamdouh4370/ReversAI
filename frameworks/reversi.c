@@ -4,7 +4,7 @@
 
 /*** Note: To compile do:
 
-gcc -o reversi.exe reversi.c reversi_functions.c team20.c team21.c
+gcc -o reversi.exe reversi.c reversi_functions.c team13.c team21.c
 
 Of course, replace 20 and 21 with whichever teams you want to play
 and modify the code that calls those functions accordingly.
@@ -23,12 +23,12 @@ and modify the code that calls those functions accordingly.
 #include <stdlib.h>
 #include <time.h>
 #include "reversi_functions.h"
-#include "team20.h"
+#include "team13.h"
 #include "team21.h"
 #include "reversi.h"
 
 int main(void) {
-    humanVComputer();
+    computerVComputer();
     return 0;
 }
 
@@ -101,7 +101,7 @@ void computerVComputer() {
 
             // Do the move and time it.
             int startT = time(0);
-            mymove = team20Move(board, player, blackTime);
+            mymove = team13Move(board, player, blackTime);
             int endT = time(0);
 
             // Update time.
@@ -207,7 +207,7 @@ void humanVComputer() {
 
             // Do the move and time it.
             int startT = time(0);
-            mymove = team20Move(board, player, compTime);
+            mymove = team13Move(board, player, compTime);
             int endT = time(0);
 
             // Update time.
