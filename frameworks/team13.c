@@ -30,9 +30,9 @@ int boardWeights[SIZE][SIZE] = {
   
 };
 
-int minMaxAB(const enum piece board[][SIZE], enum piece mine, enum piece opp, int depth, int alpha, int beta, int isMax);
-int eval(const enum piece board[][SIZE], enum piece mine);
-void adjustCornerWeights(enum piece board[][SIZE], enum piece mine);
+int team13MinMaxAB(const enum piece board[][SIZE], enum piece mine, enum piece opp, int depth, int alpha, int beta, int isMax);
+int team13Eval(const enum piece board[][SIZE], enum piece mine);
+void team13AdjustCornerWeights(enum piece board[][SIZE], enum piece mine);
 
 position* team13Move(const enum piece board[][SIZE], enum piece mine, int secondsleft){
     int numMoves;
@@ -41,7 +41,7 @@ position* team13Move(const enum piece board[][SIZE], enum piece mine, int second
     int bestScoreInd = 0, bestScore = INT_MIN, curScore;
 
     //Adjust corner weights, seemingly is good for black but worse for white ??!?
-    adjustCornerWeights(board, mine);
+    team13AdjustCornerWeights(board, mine);
 
     for (int i = 0; i < numMoves; i++){
 
@@ -53,17 +53,17 @@ position* team13Move(const enum piece board[][SIZE], enum piece mine, int second
         executeMove(myBoard, &allMoves[i], mine);
 
         // if (secondsleft < 30){
-        //     curScore = minMaxAB(myBoard, mine, opposite(mine), 4, -INT_MAX, INT_MAX, 0);
+        //     curScore = team13MinMaxAB(myBoard, mine, opposite(mine), 4, -INT_MAX, INT_MAX, 0);
         // } else if (39 > secondsleft && secondsleft > 30){
-        //     curScore = minMaxAB(myBoard, mine, opposite(mine), 6, -INT_MAX, INT_MAX, 0);    
+        //     curScore = team13MinMaxAB(myBoard, mine, opposite(mine), 6, -INT_MAX, INT_MAX, 0);    
         // } else {
-        //     curScore = minMaxAB(myBoard, mine, opposite(mine), 5, -INT_MAX, INT_MAX, 0);
+        //     curScore = team13MinMaxAB(myBoard, mine, opposite(mine), 5, -INT_MAX, INT_MAX, 0);
         // }
 
         if (secondsleft > 35){
-            curScore = minMaxAB(myBoard, mine, opposite(mine), 7, -INT_MAX, INT_MAX, 0); 
+            curScore = team13MinMaxAB(myBoard, mine, opposite(mine), 7, -INT_MAX, INT_MAX, 0); 
         } else {
-            curScore = minMaxAB(myBoard, mine, opposite(mine), 4, -INT_MAX, INT_MAX, 0);
+            curScore = team13MinMaxAB(myBoard, mine, opposite(mine), 4, -INT_MAX, INT_MAX, 0);
         }
 
 
@@ -84,9 +84,9 @@ position* team13Move(const enum piece board[][SIZE], enum piece mine, int second
     return res;
 }
 
-int minMaxAB(const enum piece board[][SIZE], enum piece mine, enum piece opp, int depth, int alpha, int beta, int isMax){
+int team13MinMaxAB(const enum piece board[][SIZE], enum piece mine, enum piece opp, int depth, int alpha, int beta, int isMax){
     if (depth == 0 || gameOver(board)){
-       return eval(board, mine) - eval(board, opp);
+       return team13Eval(board, mine) - team13Eval(board, opp);
     }
     
     int numMoves;
@@ -99,7 +99,7 @@ int minMaxAB(const enum piece board[][SIZE], enum piece mine, enum piece opp, in
 
     if (numMoves == 0){
         free(possibleMoves);
-        return eval(board, mine) - eval(board, opp);
+        return team13Eval(board, mine) - team13Eval(board, opp);
     }
 
     enum piece tmpBoard[SIZE][SIZE];
@@ -110,7 +110,7 @@ int minMaxAB(const enum piece board[][SIZE], enum piece mine, enum piece opp, in
         
         for (int i = 0; i < numMoves; i++){                        
             executeMove(tmpBoard, &possibleMoves[i], mine); 
-            int curScore = minMaxAB(tmpBoard, mine, opp, depth - 1, alpha, beta, 0);
+            int curScore = team13MinMaxAB(tmpBoard, mine, opp, depth - 1, alpha, beta, 0);
             
             if (curScore > best) best = curScore;
 
@@ -125,7 +125,7 @@ int minMaxAB(const enum piece board[][SIZE], enum piece mine, enum piece opp, in
         
         for (int i = 0; i < numMoves; i++){        
             executeMove(tmpBoard, &possibleMoves[i], opp);
-            int curScore = minMaxAB(tmpBoard, mine, opp, depth - 1, alpha, beta, 1);
+            int curScore = team13MinMaxAB(tmpBoard, mine, opp, depth - 1, alpha, beta, 1);
 
             if (curScore < best) best = curScore;
 
@@ -138,7 +138,7 @@ int minMaxAB(const enum piece board[][SIZE], enum piece mine, enum piece opp, in
     } 
 }
 
-int eval(const enum piece board[][SIZE], enum piece mine){
+int team13Eval(const enum piece board[][SIZE], enum piece mine){
     int total = 0;
 
     // Stability
@@ -173,7 +173,7 @@ int eval(const enum piece board[][SIZE], enum piece mine){
     return total;
 }
 
-void adjustCornerWeights(enum piece board[][SIZE], enum piece mine){
+void team13AdjustCornerWeights(enum piece board[][SIZE], enum piece mine){
     if (tL && board[0][0] == mine){
         tL = 0;
         boardWeights[0][1] = 11;
