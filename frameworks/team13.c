@@ -7,37 +7,41 @@
 #include "team13.h"
 #include "reversi_functions.h"
 
-
+int tL = 1, bL = 1, tR = 1, bR = 1;
 
 int boardWeights[SIZE][SIZE] = {
-    {120, -20,  20,   5,   5,  20, -20, 120},   
-    {-20, -40,  -5,  -5,  -5,  -5, -40, -20},   
-    {20,  -5,  15,   3,   3,  15,  -5,  20},
-    {5,  -5,   3,   3,   3,   3,  -5,   5},
-    {5,  -5,   3,   3,   3,   3,  -5,   5},
-    {20,  -5,  15,   3,   3,  15,  -5,  20},
-    {20, -40,  -5,  -5,  -5,  -5, -40, -20},  
-    {120, -20,  20,   5,   5,  20, -20, 120},
+    // {120, -20,  20,   5,   5,  20, -20, 120},   
+    // {-20, -40,  -5,  -5,  -5,  -5, -40, -20},   
+    // {20,  -5,  15,   3,   3,  15,  -5,  20},
+    // {5,  -5,   3,   3,   3,   3,  -5,   5},
+    // {5,  -5,   3,   3,   3,   3,  -5,   5},
+    // {20,  -5,  15,   3,   3,  15,  -5,  20},
+    // {20, -40,  -5,  -5,  -5,  -5, -40, -20},  
+    // {120, -20,  20,   5,   5,  20, -20, 120},
 
-    // {4, -3,  2,   2,   2,  2, -3, 4},   
-    // {-3, -4,  -1,  -1,  -1,  -1, -4, -3},   
-    // {2,  -1,  1,   0,   0,  1,  -1, 2},
-    // {2,  -1,   0,   1,   1,   0,  -1, 2},
-    // {2,  -1,   0,   1,   1,   0,  -1, 2},
-    // {2,  -1,  1,   0,   0,  1,  -1, 2},
-    // {-3, -4,  -1,  -1,  -1,  -1, -4, -3},  
-    // {4, -3,  2,   2,   2,  2, -3, 4},
+    {100, -10, 11,   6,   6,  11, -10, 100},   
+    {-10, -20,  1,  2,  2,  1, -20, -10},   
+    {10,  1,  5,   4,   4,  5,  1, 10},
+    {6,  2,   4,   2,   2,   4,  2, 6},
+    {6,  2,   4,   2,   2,   4,  2, 6},
+    {10,  1,  5,   4,   4,  5,  1, 10},
+    {-10, -20,  1,  2,  2,  1, -20, -10},  
+    {100, -10,  11,   6,   6,  11, -10, 100},
   
 };
 
 int minMaxAB(const enum piece board[][SIZE], enum piece mine, enum piece opp, int depth, int alpha, int beta, int isMax);
 int eval(const enum piece board[][SIZE], enum piece mine);
+void adjustCornerWeights(enum piece board[][SIZE], enum piece mine);
 
 position* team13Move(const enum piece board[][SIZE], enum piece mine, int secondsleft){
     int numMoves;
     position * allMoves = getPossibleMoves(board, mine, &numMoves);
 
     int bestScoreInd = 0, bestScore = INT_MIN, curScore;
+
+    //Adjust corner weights, seemingly is good for black but worse for white ??!?
+    adjustCornerWeights(board, mine);
 
     for (int i = 0; i < numMoves; i++){
 
@@ -46,10 +50,22 @@ position* team13Move(const enum piece board[][SIZE], enum piece mine, int second
         enum piece myBoard[SIZE][SIZE];
         copy(myBoard, board);        
         
-        
         executeMove(myBoard, &allMoves[i], mine);
-        
-        curScore = minMaxAB(myBoard, mine, opposite(mine), 4, -INT_MAX, INT_MAX, 0);
+
+        // if (secondsleft < 30){
+        //     curScore = minMaxAB(myBoard, mine, opposite(mine), 4, -INT_MAX, INT_MAX, 0);
+        // } else if (39 > secondsleft && secondsleft > 30){
+        //     curScore = minMaxAB(myBoard, mine, opposite(mine), 6, -INT_MAX, INT_MAX, 0);    
+        // } else {
+        //     curScore = minMaxAB(myBoard, mine, opposite(mine), 5, -INT_MAX, INT_MAX, 0);
+        // }
+
+        if (secondsleft > 35){
+            curScore = minMaxAB(myBoard, mine, opposite(mine), 7, -INT_MAX, INT_MAX, 0); 
+        } else {
+            curScore = minMaxAB(myBoard, mine, opposite(mine), 4, -INT_MAX, INT_MAX, 0);
+        }
+
 
         //printf("%d ", curScore);
         if (curScore > bestScore){
@@ -58,11 +74,12 @@ position* team13Move(const enum piece board[][SIZE], enum piece mine, int second
         }
     }
     
-    position* res = malloc(sizeof(position));
+    position * res = malloc(sizeof(position));
     res->x = allMoves[bestScoreInd].x;
     res->y = allMoves[bestScoreInd].y;
     free(allMoves);
-    printf("\n");
+    
+    printf("%d\n", secondsleft);
 
     return res;
 }
@@ -82,7 +99,7 @@ int minMaxAB(const enum piece board[][SIZE], enum piece mine, enum piece opp, in
 
     if (numMoves == 0){
         free(possibleMoves);
-        return score(board, mine) - score(board, opp);
+        return eval(board, mine) - eval(board, opp);
     }
 
     enum piece tmpBoard[SIZE][SIZE];
@@ -123,38 +140,64 @@ int minMaxAB(const enum piece board[][SIZE], enum piece mine, enum piece opp, in
 
 int eval(const enum piece board[][SIZE], enum piece mine){
     int total = 0;
-    
-    for (int i=0; i<SIZE; i++){
-        if (board[0][i] == mine) total += 2;
-        if (board[i][0] == mine) total += 2;
-        if (board[SIZE-1][i] == mine) total += 2;
-        if (board[i][SIZE-1] == mine) total += 2;
-    }
-    for (int i=1; i<SIZE-1; i++){
-        for (int j=1; j<SIZE-1; j++){
-            if (board[i][j] == mine) total++;
+
+    // Stability
+    for (int i = 0; i < SIZE; i++){
+        for (int j = 0; j < SIZE; j++){
+            if (board[i][j] == mine){
+                total += boardWeights[i][j];    
+            }
         }
     }
 
-    // for (int i=0; i<SIZE; i++){
-    //     for (int j=0; j<SIZE; j++){
-    //         if (board[i][j] == mine){
-    //             if (i == 0 || i == SIZE-1 || j == 0 || j == SIZE-1) total += 2;
-    //             total++;
-    //         }
-    //     }
-    // }
+    // Mobility, adjust aggresiveness/defesiveness
+    int numMoves;
+    int numOppMoves;
+    position * possibleMoves = getPossibleMoves(board, mine, &numMoves);
+    position * possibleOppsMoves = getPossibleMoves(board, opposite(mine), &numOppMoves);
+    free(possibleMoves);
 
-    // for (int i=0; i<SIZE; i++){
-    //     for (int j=0; j<SIZE; j++){
-    //         if (board[i][j] == mine){
-    //             total += boardWeights[i][j];    
-    //         }
-    //     }
-    // }
-
+    if (numMoves > 10) {
+        total += (numMoves * 4);
+        total -= (numOppMoves * 3);
+    } else if (numMoves > 5) {
+        total += (numMoves * 3);
+        total -= (numOppMoves * 2);
+    } else if (numMoves > 2) {
+        total += (numMoves * 2);
+        total -= (numOppMoves);
+    } else {
+        total += numMoves;
+    }
 
     return total;
+}
+
+void adjustCornerWeights(enum piece board[][SIZE], enum piece mine){
+    if (tL && board[0][0] == mine){
+        tL = 0;
+        boardWeights[0][1] = 11;
+        boardWeights[1][0] = 10;
+        boardWeights[1][1] = 1;
+    }
+    if (bL && board[SIZE-1][0] == mine){
+        bL = 0;
+        boardWeights[SIZE-2][0] = 11;
+        boardWeights[SIZE-1][1] = 10;
+        boardWeights[SIZE-2][1] = 1;
+    }
+    if (tR && board[0][SIZE-1] == mine){
+        tR = 0;
+        boardWeights[0][SIZE-2] = 11;
+        boardWeights[1][SIZE-1] = 10;
+        boardWeights[1][SIZE-2] = 1;
+    }
+    if (bR && board[SIZE-1][SIZE-1] == mine){
+        bR = 0;
+        boardWeights[SIZE-1][SIZE-2] = 11;
+        boardWeights[SIZE-2][SIZE-1] = 10;
+        boardWeights[SIZE-2][SIZE-2] = 1;
+    }
 }
 
 // Minmax function with alpha beta pruning for time saving
