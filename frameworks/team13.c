@@ -3,22 +3,15 @@
 
 #include <limits.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #include "team13.h"
 #include "reversi_functions.h"
 
 int tL = 1, bL = 1, tR = 1, bR = 1;
 
+ 
 int boardWeights[SIZE][SIZE] = {
-    // {120, -20,  20,   5,   5,  20, -20, 120},   
-    // {-20, -40,  -5,  -5,  -5,  -5, -40, -20},   
-    // {20,  -5,  15,   3,   3,  15,  -5,  20},
-    // {5,  -5,   3,   3,   3,   3,  -5,   5},
-    // {5,  -5,   3,   3,   3,   3,  -5,   5},
-    // {20,  -5,  15,   3,   3,  15,  -5,  20},
-    // {20, -40,  -5,  -5,  -5,  -5, -40, -20},  
-    // {120, -20,  20,   5,   5,  20, -20, 120},
-
     {100, -10, 11,   6,   6,  11, -10, 100},   
     {-10, -20,  1,  2,  2,  1, -20, -10},   
     {10,  1,  5,   4,   4,  5,  1, 10},
@@ -45,33 +38,26 @@ position* team13Move(const enum piece board[][SIZE], enum piece mine, int second
 
     for (int i = 0; i < numMoves; i++){
 
-        if (!isValidMove(board, &allMoves[i], mine)) continue;
-
         enum piece myBoard[SIZE][SIZE];
         copy(myBoard, board);        
         
         executeMove(myBoard, &allMoves[i], mine);
 
-        // if (secondsleft < 30){
-        //     curScore = team13MinMaxAB(myBoard, mine, opposite(mine), 4, -INT_MAX, INT_MAX, 0);
-        // } else if (39 > secondsleft && secondsleft > 30){
-        //     curScore = team13MinMaxAB(myBoard, mine, opposite(mine), 6, -INT_MAX, INT_MAX, 0);    
-        // } else {
-        //     curScore = team13MinMaxAB(myBoard, mine, opposite(mine), 5, -INT_MAX, INT_MAX, 0);
-        // }
-
         if (secondsleft > 35){
-            curScore = team13MinMaxAB(myBoard, mine, opposite(mine), 7, -INT_MAX, INT_MAX, 0); 
-        } else {
+            curScore = team13MinMaxAB(myBoard, mine, opposite(mine), 6, -INT_MAX, INT_MAX, 0); 
+        } else if (secondsleft > 27){
+            curScore = team13MinMaxAB(myBoard, mine, opposite(mine), 5, -INT_MAX, INT_MAX, 0);
+        } else if (secondsleft > 10){
             curScore = team13MinMaxAB(myBoard, mine, opposite(mine), 4, -INT_MAX, INT_MAX, 0);
+        } else {
+            curScore = team13MinMaxAB(myBoard, mine, opposite(mine), 3, -INT_MAX, INT_MAX, 0);
         }
 
-
-        //printf("%d ", curScore);
         if (curScore > bestScore){
             bestScoreInd = i;
             bestScore = curScore;
         }
+
     }
     
     position * res = malloc(sizeof(position));
@@ -106,9 +92,11 @@ int team13MinMaxAB(const enum piece board[][SIZE], enum piece mine, enum piece o
     copy(tmpBoard, board);
 
     if (isMax){
+
         int best = -INT_MAX;
         
-        for (int i = 0; i < numMoves; i++){                        
+        for (int i = 0; i < numMoves; i++){      
+
             executeMove(tmpBoard, &possibleMoves[i], mine); 
             int curScore = team13MinMaxAB(tmpBoard, mine, opp, depth - 1, alpha, beta, 0);
             
@@ -116,14 +104,17 @@ int team13MinMaxAB(const enum piece board[][SIZE], enum piece mine, enum piece o
 
             if (alpha < best) alpha = best;
             if (beta <= alpha) break;
+
         }
         
         free(possibleMoves);
         return best;
+
     } else {
         int best = INT_MAX;
         
-        for (int i = 0; i < numMoves; i++){        
+        for (int i = 0; i < numMoves; i++){   
+
             executeMove(tmpBoard, &possibleMoves[i], opp);
             int curScore = team13MinMaxAB(tmpBoard, mine, opp, depth - 1, alpha, beta, 1);
 
@@ -131,6 +122,7 @@ int team13MinMaxAB(const enum piece board[][SIZE], enum piece mine, enum piece o
 
             if (beta < best) beta = best;
             if (beta <= alpha) break;
+
         }
 
         free(possibleMoves);
@@ -141,33 +133,55 @@ int team13MinMaxAB(const enum piece board[][SIZE], enum piece mine, enum piece o
 int team13Eval(const enum piece board[][SIZE], enum piece mine){
     int total = 0;
 
-    // Stability
-    for (int i = 0; i < SIZE; i++){
-        for (int j = 0; j < SIZE; j++){
-            if (board[i][j] == mine){
-                total += boardWeights[i][j];    
-            }
-        }
-    }
-
     // Mobility, adjust aggresiveness/defesiveness
     int numMoves;
     int numOppMoves;
     position * possibleMoves = getPossibleMoves(board, mine, &numMoves);
     position * possibleOppsMoves = getPossibleMoves(board, opposite(mine), &numOppMoves);
     free(possibleMoves);
+    free(possibleOppsMoves);
 
-    if (numMoves > 10) {
-        total += (numMoves * 4);
-        total -= (numOppMoves * 3);
-    } else if (numMoves > 5) {
-        total += (numMoves * 3);
+    // if (numMoves > 10) {
+    //     total += (numMoves * 3);
+    //     total -= (numOppMoves * 2);
+    // } else if (numMoves > 5) {
+    //     total += (numMoves * 2);
+    //     total -= (numOppMoves);
+    // } else if (numMoves > 2) {
+    //     total += (numMoves);
+    //     total -= (numOppMoves * 0.5);
+    // } else {
+    //     total += (numMoves * 0.5);
+    // }
+
+    if (numMoves > numOppMoves) {
+        total += (numMoves);
         total -= (numOppMoves * 2);
-    } else if (numMoves > 2) {
-        total += (numMoves * 2);
+    } else{
+        total += (numMoves * 3);
         total -= (numOppMoves);
+
+    }
+
+    // Stability/num of pieces
+    if (score(board, EMPTY) < 5){
+        //printBoard(board);
+        //printf("endgame ");
+        for (int i = 0; i < SIZE; i++){
+            for (int j = 0; j < SIZE; j++){
+                if (board[i][j] == mine) total++;
+            }
+        }
     } else {
-        total += numMoves;
+
+        for (int i = 0; i < SIZE; i++){
+            for (int j = 0; j < SIZE; j++){
+                if (board[i][j] == mine){
+                    total += boardWeights[i][j];    
+                }
+            }
+        } 
+
     }
 
     return total;
