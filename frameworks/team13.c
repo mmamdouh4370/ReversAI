@@ -214,6 +214,8 @@ void team13AdjustCornerWeights(enum piece board[][SIZE], enum piece mine){
     }
 }
 
-// Minmax function with alpha beta pruning for time saving
-// Give better score/weight to better moves (corner control), mobility ?
-// Negamax algo ?!, better board store as int 64/8?, bitboards wtf  a
+/* TODO */
+// Improve native reversi functions
+// Faster gamestate eval
+// Depth based on gamestate/mobility
+// Add bitboards
