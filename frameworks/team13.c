@@ -36,6 +36,22 @@ position* team13Move(const enum piece board[][SIZE], enum piece mine, int second
     //Adjust corner weights, seemingly is good for black but worse for white ??!?
     team13AdjustCornerWeights(board, mine);
 
+    int numEmpty = score(board, EMPTY);
+    int curDepth;
+    if (numEmpty > 40){
+        //printf("early ");
+        curDepth = 3; 
+    } else if (numEmpty > 25){
+        //printf("midish");
+        curDepth = 3;
+    } else if (numEmpty > 10){
+        //printf("mid ");
+        curDepth = 4;
+    } else {
+        //printf("late ");
+        curDepth = 5;
+    } 
+
     for (int i = 0; i < numMoves; i++){
 
         enum piece myBoard[SIZE][SIZE];
@@ -43,15 +59,7 @@ position* team13Move(const enum piece board[][SIZE], enum piece mine, int second
         
         executeMove(myBoard, &allMoves[i], mine);
 
-        if (secondsleft > 35){
-            curScore = team13MinMaxAB(myBoard, mine, opposite(mine), 6, -INT_MAX, INT_MAX, 0); 
-        } else if (secondsleft > 27){
-            curScore = team13MinMaxAB(myBoard, mine, opposite(mine), 5, -INT_MAX, INT_MAX, 0);
-        } else if (secondsleft > 10){
-            curScore = team13MinMaxAB(myBoard, mine, opposite(mine), 4, -INT_MAX, INT_MAX, 0);
-        } else {
-            curScore = team13MinMaxAB(myBoard, mine, opposite(mine), 3, -INT_MAX, INT_MAX, 0);
-        }
+        curScore = team13MinMaxAB(myBoard, mine, opposite(mine), curDepth, INT_MIN, INT_MAX, 0); 
 
         if (curScore > bestScore){
             bestScoreInd = i;
@@ -65,7 +73,7 @@ position* team13Move(const enum piece board[][SIZE], enum piece mine, int second
     res->y = allMoves[bestScoreInd].y;
     free(allMoves);
     
-    printf("%d\n", secondsleft);
+    //printf("%d\n", secondsleft);
 
     return res;
 }
@@ -93,7 +101,7 @@ int team13MinMaxAB(const enum piece board[][SIZE], enum piece mine, enum piece o
 
     if (isMax){
 
-        int best = -INT_MAX;
+        int best = INT_MIN;
         
         for (int i = 0; i < numMoves; i++){      
 
@@ -154,14 +162,7 @@ int team13Eval(const enum piece board[][SIZE], enum piece mine){
     //     total += (numMoves * 0.5);
     // }
 
-    if (numMoves > numOppMoves) {
-        total += (numMoves);
-        total -= (numOppMoves * 2);
-    } else{
-        total += (numMoves * 3);
-        total -= (numOppMoves);
-
-    }
+    
 
     // Stability/num of pieces
     if (score(board, EMPTY) < 5){
@@ -182,6 +183,14 @@ int team13Eval(const enum piece board[][SIZE], enum piece mine){
             }
         } 
 
+        if (numMoves > numOppMoves) {
+            total += (numMoves);
+            total -= (numOppMoves * 2);
+        } else{
+            total += (numMoves * 2);
+            total -= (numOppMoves);
+        }
+        
     }
 
     return total;
