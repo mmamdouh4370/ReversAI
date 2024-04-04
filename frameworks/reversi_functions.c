@@ -271,6 +271,20 @@ void flipPieces(enum piece board[][SIZE], const position* ptrStart, const positi
         free(curPos);
         curPos = nextPos;
     }
+    
+    // This should be faster... but it isn't.
+    // position curPos = *ptrStart;
+
+    // // Keep on going till we get to the end.
+    // while (!equal(&curPos, ptrEnd)) {
+
+    //     // Flip this piece.
+    //     board[curPos.x][curPos.y] = mine;
+
+    //     // Go to the next piece in this direction.
+    //     curPos.x += DX[dir];
+    //     curPos.y += DY[dir];
+    // }
 }
 
 // Returns the number of pieces on board equal to mine.

@@ -24,12 +24,12 @@ and modify the code that calls those functions accordingly.
 #include <time.h>
 #include <string.h>
 #include "reversi_functions.h"
-#include "team13.h"
 #include "team07.h"
+#include "team13.h"
 #include "reversi.h"
 
 int main(void) {
-    humanVComputer();
+    computerVComputer();
     return 0;
 }
 
@@ -228,7 +228,7 @@ void humanVComputer() {
         }
 
         // Print the result and go to the other player.
-        printf("Black's Score: %d, White's Score: %d\n", score(board, BLACK), score(board, WHITE));
+        //printf("Black's Score: %d, White's Score: %d\n", score(board, BLACK), score(board, WHITE));
         printBoard(board);
         player = opposite(player);
     }
