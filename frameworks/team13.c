@@ -5,6 +5,7 @@
 // Remove any unnecesary functions
 // Name and team on top
 // Balance mobility depth
+// Quience search
 
 #include <stdlib.h>
 #include <time.h>
@@ -66,15 +67,14 @@ position * team13Move(const enum piece board[][SIZE], enum piece mine, int secon
     // Adjust depth based on state of game
     int numEmpty = score(board, EMPTY);
     int curDepth;
-    if (numEmpty > 40){
+    if (numEmpty > 25){
         curDepth = 3; 
-    } else if (numEmpty > 25){
-        curDepth = 3;
     } else if (numEmpty > 10){
         curDepth = 4;
     } else {
         curDepth = 5;
     }
+
     // if (numEmpty > 40){
     //     //printf("early ");
     //     curDepth = 3; 
