@@ -1,17 +1,8 @@
-/* TODO */
-// Improve native reversi functions
-// Add bitboards
-// Comment and clean code
-// Remove any unnecesary functions
-// Name and team on top
-// Balance mobility depth
-// Quience search
+// Team 13: Mohammed Mamdouh
 
 #include <stdlib.h>
 #include <time.h>
-
 #include <limits.h>
-#include <stdio.h>
 
 #include "team13.h"
 #include "reversi_functions.h"
@@ -67,24 +58,13 @@ position * team13Move(const enum piece board[][SIZE], enum piece mine, int secon
     // Adjust depth based on state of game
     int numEmpty = score(board, EMPTY);
     int curDepth;
-    if (numEmpty > 25){
+    if (numEmpty > 35){
         curDepth = 3; 
     } else if (numEmpty > 10){
         curDepth = 4;
     } else {
         curDepth = 5;
     }
-
-    // if (numEmpty > 40){
-    //     //printf("early ");
-    //     curDepth = 3; 
-    // } else if (numEmpty > 20){
-    //     //printf("mid ");
-    //     curDepth = 4;
-    // } else {
-    //     //printf("late ");
-    //     curDepth = 5;
-    // }
 
     // Loop through all possible moves
     for (int i = 0; i < numMoves; i++){
@@ -112,7 +92,6 @@ position * team13Move(const enum piece board[][SIZE], enum piece mine, int secon
     res->y = allMoves[bestScoreInd].y;
     free(allMoves);
     
-    printf("%d\n", secondsleft);
 
     // Return our best move.
     return res;
