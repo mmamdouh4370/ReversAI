@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <limits.h>
+#include <stdio.h>
 
 #include "team13.h"
 #include "reversi_functions.h"
@@ -12,14 +13,14 @@ int tL = 1, bL = 1, tR = 1, bR = 1;
 
 // Static board weights used to evaluate "strength" of a move, the negatives surronding the corner are adjusted once we take the corner
 int boardWeights[SIZE][SIZE] = {
-    {200, -20, 15,   8,   8,  15, -20, 200},   
+    {150, -20, 15,   8,   8,  15, -20, 150},   
     {-20, -30,  1,  2,  2,  1, -30, -20},   
     {15,  1,  5,   4,   4,  5,  1, 15},
     {8,  2,   4,   2,   2,   4,  2, 8},
     {8,  2,   4,   2,   2,   4,  2, 8},
     {15,  1,  5,   4,   4,  5,  1, 15},
     {-20, -30,  1,  2,  2,  1, -30, -20},  
-    {200, -20,  15,   8,   8,  15, -20, 200},
+    {150, -20,  15,   8,   8,  15, -20, 150},
   
 };
 
@@ -58,11 +59,14 @@ position * team13Move(const enum piece board[][SIZE], enum piece mine, int secon
     // Adjust depth based on state of game
     int numEmpty = score(board, EMPTY);
     int curDepth;
-    if (numEmpty > 35){
+    if (numEmpty > 50){
+        printf("e ");
         curDepth = 4; 
     } else if (numEmpty > 10){
+        printf("m ");
         curDepth = 5;
     } else {
+        printf("l ");
         curDepth = 8;
     }
 
@@ -77,6 +81,7 @@ position * team13Move(const enum piece board[][SIZE], enum piece mine, int secon
 
         // Score this move via our minmax function
         curScore = team13MinMaxAB(myBoard, mine, opposite(mine), curDepth, INT_MIN, INT_MAX, 0); 
+       printf("%d, ", curScore);
 
         // Save the index of this move if it beats out our current best score.
         if (curScore > bestScore){
@@ -92,6 +97,7 @@ position * team13Move(const enum piece board[][SIZE], enum piece mine, int secon
     res->y = allMoves[bestScoreInd].y;
     free(allMoves);
     
+    printf("%d\n", secondsleft);
 
     // Return our best move.
     return res;
@@ -160,7 +166,7 @@ int team13MinMaxAB(const enum piece board[][SIZE], enum piece mine, enum piece o
             if (curScore < best) best = curScore;
 
             // Handle alpha beta, breaking out of our loop if alpha is smaller then beta.
-            if (beta < best) beta = best;
+            if (beta > best) beta = best;
             if (beta <= alpha) break;
 
         }
@@ -184,7 +190,7 @@ int team13Eval(const enum piece board[][SIZE], enum piece mine){
 
 
     // Stability/num of pieces, when there are very few empty spots left do a primitive score count.
-    if (score(board, EMPTY) < 5){
+    if (score(board, EMPTY) < 10){
         for (int i = 0; i < SIZE; i++){
             for (int j = 0; j < SIZE; j++){
                 if (board[i][j] == mine) total++;
@@ -199,19 +205,22 @@ int team13Eval(const enum piece board[][SIZE], enum piece mine){
             }
         } 
 
+        // if (numMoves > numOppMoves) {
+        //     total += (numMoves * 0.5);
+        //     total -= (numOppMoves);
+        // } else{
+        //     total += (numMoves);
+        //     total -= (numOppMoves * 0.5);
+        // }
+
         // Mobility, only account for it before late game.
         
         
     }
 
-    if (numMoves > numOppMoves) {
-            total += (numMoves * 0.5);
-            total -= (numOppMoves);
-        } else{
-            total += (numMoves);
-            total -= (numOppMoves * 0.5);
-        }
-
+    // if (mine == BLACK){
+    //     printf("black %d, ", total);
+    // }
     return total;
 }
 
