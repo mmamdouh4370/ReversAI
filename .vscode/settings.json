@@ -3,6 +3,7 @@
     "files.associations": {
         "reversi.h": "c",
         "stdlib.h": "c",
-        "reversi_functions.h": "c"
+        "reversi_functions.h": "c",
+        "team03.h": "c"
     }
 }

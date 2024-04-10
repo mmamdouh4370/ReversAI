@@ -12,14 +12,14 @@ int tL = 1, bL = 1, tR = 1, bR = 1;
 
 // Static board weights used to evaluate "strength" of a move, the negatives surronding the corner are adjusted once we take the corner
 int boardWeights[SIZE][SIZE] = {
-    {100, -10, 11,   6,   6,  11, -10, 100},   
-    {-10, -20,  1,  2,  2,  1, -20, -10},   
-    {10,  1,  5,   4,   4,  5,  1, 10},
-    {6,  2,   4,   2,   2,   4,  2, 6},
-    {6,  2,   4,   2,   2,   4,  2, 6},
-    {10,  1,  5,   4,   4,  5,  1, 10},
-    {-10, -20,  1,  2,  2,  1, -20, -10},  
-    {100, -10,  11,   6,   6,  11, -10, 100},
+    {200, -20, 15,   8,   8,  15, -20, 200},   
+    {-20, -30,  1,  2,  2,  1, -30, -20},   
+    {15,  1,  5,   4,   4,  5,  1, 15},
+    {8,  2,   4,   2,   2,   4,  2, 8},
+    {8,  2,   4,   2,   2,   4,  2, 8},
+    {15,  1,  5,   4,   4,  5,  1, 15},
+    {-20, -30,  1,  2,  2,  1, -30, -20},  
+    {200, -20,  15,   8,   8,  15, -20, 200},
   
 };
 
@@ -59,11 +59,11 @@ position * team13Move(const enum piece board[][SIZE], enum piece mine, int secon
     int numEmpty = score(board, EMPTY);
     int curDepth;
     if (numEmpty > 35){
-        curDepth = 3; 
+        curDepth = 4; 
     } else if (numEmpty > 10){
-        curDepth = 4;
-    } else {
         curDepth = 5;
+    } else {
+        curDepth = 8;
     }
 
     // Loop through all possible moves
@@ -200,42 +200,44 @@ int team13Eval(const enum piece board[][SIZE], enum piece mine){
         } 
 
         // Mobility, only account for it before late game.
-        if (numMoves > numOppMoves) {
-            total += (numMoves);
-            total -= (numOppMoves * 2);
-        } else{
-            total += (numMoves * 2);
-            total -= (numOppMoves);
-        }
+        
         
     }
+
+    if (numMoves > numOppMoves) {
+            total += (numMoves * 0.5);
+            total -= (numOppMoves);
+        } else{
+            total += (numMoves);
+            total -= (numOppMoves * 0.5);
+        }
 
     return total;
 }
 
 void team13AdjustCornerWeights(const enum piece board[][SIZE], enum piece mine){
-    if (tL && board[0][0] == mine){
+    if (tL && board[0][0] != EMPTY){
         tL = 0;
-        boardWeights[0][1] = 11;
-        boardWeights[1][0] = 10;
+        boardWeights[0][1] = 20;
+        boardWeights[1][0] = 20;
         boardWeights[1][1] = 1;
     }
-    if (bL && board[SIZE-1][0] == mine){
+    if (bL && board[SIZE-1][0] != EMPTY){
         bL = 0;
-        boardWeights[SIZE-2][0] = 11;
-        boardWeights[SIZE-1][1] = 10;
+        boardWeights[SIZE-2][0] = 20;
+        boardWeights[SIZE-1][1] = 20;
         boardWeights[SIZE-2][1] = 1;
     }
-    if (tR && board[0][SIZE-1] == mine){
+    if (tR && board[0][SIZE-1] != EMPTY){
         tR = 0;
-        boardWeights[0][SIZE-2] = 11;
-        boardWeights[1][SIZE-1] = 10;
+        boardWeights[0][SIZE-2] = 20;
+        boardWeights[1][SIZE-1] = 20;
         boardWeights[1][SIZE-2] = 1;
     }
-    if (bR && board[SIZE-1][SIZE-1] == mine){
+    if (bR && board[SIZE-1][SIZE-1] != EMPTY){
         bR = 0;
-        boardWeights[SIZE-1][SIZE-2] = 11;
-        boardWeights[SIZE-2][SIZE-1] = 10;
+        boardWeights[SIZE-1][SIZE-2] = 20;
+        boardWeights[SIZE-2][SIZE-1] = 20;
         boardWeights[SIZE-2][SIZE-2] = 1;
     }
 }
